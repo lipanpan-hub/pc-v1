@@ -8,8 +8,8 @@
       <span>{{ expiredMinutes }}分钟</span>
     </div>
     <div class="info" v-if="type === 'mock'">
-      <span>总{{ score }}分</span>
-      <span class="item">|</span>
+      <!--<span>总{{ score }}分</span>
+      <span class="item">|</span>-->
       <span>{{ passScore }}分及格</span>
     </div>
   </div>

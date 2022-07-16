@@ -31,11 +31,14 @@
         </template>
         <template v-else-if="question">
           <div class="delete-icon" @click="collectAnswer()">
-            <img
-              v-if="isCollected"
-              src="../../../assets/img/commen/icon-collect-h.png"
-            />
-            <img v-else src="../../../assets/img/commen/icon-collect-n.png" />
+            <template v-if="isCollected">
+              <img src="../../../assets/img/commen/icon-collect-h.png" />
+              <strong>已收藏</strong>
+            </template>
+            <template v-else>
+              <img src="../../../assets/img/commen/icon-collect-n.png" />
+              收藏试题
+            </template>
           </div>
           <div class="collection-join-box">
             <div class="question-content">
@@ -356,29 +359,55 @@ export default {
     display: flex;
     width: 1200px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: row;
+    min-height: 500px;
+    margin-top: 30px;
+    position: relative;
     .left-box {
       width: 300px;
-      height: 1178px;
-      background: #ffffff;
-      margin-right: 30px;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 100px;
+      z-index: 50;
+      min-height: 500px;
+      background: #fff;
+      border-radius: 8px;
     }
     .right-box {
+      margin-left: 330px;
+      width: 870px;
+      min-height: 500px;
+      height: auto;
+      float: left;
       position: relative;
-      margin-top: 30px;
-      width: 872px;
-      border-radius: 8px;
-      box-sizing: border-box;
+      .collection-join-box {
+        width: 870px;
+        height: auto;
+        float: left;
+        border-radius: 8px;
+        overflow: hidden;
+      }
       .delete-icon {
         position: absolute;
-        width: 28px;
-        height: 28px;
+        display: flex;
+        width: auto;
+        height: 24px;
         cursor: pointer;
         right: 30px;
         top: 30px;
         z-index: 10;
+        font-size: 14px;
+        font-weight: 400;
+        color: #666666;
+        line-height: 24px;
+        strong {
+          color: #ffc53d;
+        }
+        img {
+          width: 24px;
+          height: 24px;
+          margin-right: 10px;
+        }
       }
       .buttons-box {
         width: 100%;

@@ -212,51 +212,6 @@ const routes = [
     component: () => import("../views/member/index.vue"),
   },
   {
-    path: "/member/mycourses",
-    name: "MemberCourses",
-    meta: {
-      title: "我的录播课",
-      auth: true,
-    },
-    component: () => import("../views/member/courses.vue"),
-  },
-  {
-    path: "/member/myk12",
-    name: "MemberK12",
-    meta: {
-      title: "我的班课",
-      auth: true,
-    },
-    component: () => import("../views/member/k12.vue"),
-  },
-  {
-    path: "/member/mylive",
-    name: "MemberLive",
-    meta: {
-      title: "我的直播课",
-      auth: true,
-    },
-    component: () => import("../views/member/live.vue"),
-  },
-  {
-    path: "/member/mybooks",
-    name: "MemberBooks",
-    meta: {
-      title: "已购电子书",
-      auth: true,
-    },
-    component: () => import("../views/member/books.vue"),
-  },
-  {
-    path: "/member/mytopic",
-    name: "MemberTopic",
-    meta: {
-      title: "已购图文",
-      auth: true,
-    },
-    component: () => import("../views/member/topic.vue"),
-  },
-  {
     path: "/member/history",
     name: "MemberHistory",
     meta: {
@@ -531,6 +486,16 @@ const routes = [
       auth: true,
     },
     component: () => import("../views/exam/questionbank/play.vue"),
+  },
+  {
+    path: "/study-center",
+    name: "StudyCenter",
+    meta: {
+      title: "我的学习",
+      auth: true,
+      keepAlive: true,
+    },
+    component: () => import("../views/study/index.vue"),
   },
   {
     path: "/ms",

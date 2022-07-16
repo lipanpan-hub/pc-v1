@@ -7,37 +7,43 @@
     <div class="banner">
       <div class="tit">考试错题本</div>
       <div class="btn-box">
-        <div class="day-play" @click="run('random')">随机练习</div>
+        <!--<div class="day-play" @click="run('random')">随机练习</div>-->
         <div class="btn-all-play" @click="run('order')">全部练习</div>
       </div>
     </div>
-    <div class="statistics-box">
+    <!--<div class="statistics-box">
       <div class="tit">每日错题统计</div>
       <div class="statistics">
         <ve-histogram :data="chartData"> </ve-histogram>
       </div>
-    </div>
+    </div>-->
 
     <div class="contanier">
-      <div class="tit">错题本试题</div>
-
-      <div class="question-box">
-        <template v-if="loading">
-          <skeletonPaperDetail></skeletonPaperDetail>
-        </template>
-        <template v-else-if="list.length > 0">
-          <div class="question-item" v-for="item in list" :key="item.id">
-            <div
-              class="question-name"
-              v-if="item.type === 6"
-              v-html="JSON.parse(item.content).header"
-            ></div>
-            <div class="question-name" v-else v-html="item.content"></div>
-            <div class="question-type">{{ item.type_text }}</div>
-            <a class="link-detail" @click="goDetail(item.id)">查看详情</a>
-          </div>
-        </template>
-        <none type="white" v-else></none>
+      <div class="question-box" v-if="list">
+        <div class="question-item" @click="goDetail(1)" v-if="list[1] > 0">
+          <div class="question-item-type">单选题</div>
+          <div class="question-item-num">共{{ list[1] }}题错题</div>
+        </div>
+        <div class="question-item" @click="goDetail(2)" v-if="list[2] > 0">
+          <div class="question-item-type">多选题</div>
+          <div class="question-item-num">共{{ list[2] }}题错题</div>
+        </div>
+        <div class="question-item" @click="goDetail(5)" v-if="list[5] > 0">
+          <div class="question-item-type">判断题</div>
+          <div class="question-item-num">共{{ list[5] }}题错题</div>
+        </div>
+        <div class="question-item" @click="goDetail(3)" v-if="list[3] > 0">
+          <div class="question-item-type">填空题</div>
+          <div class="question-item-num">共{{ list[3] }}题错题</div>
+        </div>
+        <div class="question-item" @click="goDetail(4)" v-if="list[4] > 0">
+          <div class="question-item-type">问答题</div>
+          <div class="question-item-num">共{{ list[4] }}题错题</div>
+        </div>
+        <div class="question-item" @click="goDetail(6)" v-if="list[6] > 0">
+          <div class="question-item-type">题帽题</div>
+          <div class="question-item-num">共{{ list[6] }}题错题</div>
+        </div>
       </div>
     </div>
 
@@ -47,18 +53,14 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import NavFooter from "../../../components/footer.vue";
-import None from "../../../components/none.vue";
-import SkeletonPaperDetail from "../../../components/skeleton/skeletonPaperDetail.vue";
 
 export default {
   components: {
     NavFooter,
-    None,
-    SkeletonPaperDetail,
   },
   data() {
     return {
-      list: [],
+      list: null,
       chartData: {
         columns: ["日期", "新增"],
         rows: [],
@@ -88,16 +90,7 @@ export default {
         this.loading = false;
         let results = res.data.questions;
         this.chartData.rows = res.data.data;
-        this.wrong_rate = res.data.wrong_rate.toFixed(2);
-        this.wrong_question_count = res.data.wrong_question_count;
-        this.user_question_count = res.data.user_question_count;
-        let box = [];
-        for (let key in results) {
-          for (var i = 0; i < results[key].length; i++) {
-            box.push(results[key][i]);
-          }
-        }
-        this.list = box;
+        this.list = res.data.types_count;
       });
     },
     goDetail(id) {
@@ -105,10 +98,13 @@ export default {
         this.goLogin();
         return;
       }
+      if (this.list[id] === 0) {
+        return;
+      }
       this.$router.push({
         name: "ExamWrongBookPlay",
         query: {
-          id: id,
+          type: id,
         },
       });
     },
@@ -131,7 +127,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .content {
   width: 100%;
   .nav {
@@ -254,58 +250,40 @@ export default {
     width: 1200px;
     min-height: 500px;
     margin: 0 auto;
-    overflow: hidden;
-    background: #ffffff;
-    padding: 30px;
     box-sizing: border-box;
-    .tit {
-      width: 100%;
-      height: 16px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #333333;
-      line-height: 16px;
-      margin-bottom: 30px;
-    }
     .question-box {
       width: 100%;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      gap: 30px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       .question-item {
-        width: 100%;
-        height: 40%;
+        width: 585px;
+        height: 116px;
+        background: #ffffff;
+        border-radius: 8px;
         display: flex;
-        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-        &:last-child {
-          margin-bottom: 0px;
+        box-sizing: border-box;
+        padding: 30px;
+        cursor: pointer;
+        &:hover {
+          box-shadow: 0px 4px 8px 0px #e5e5e5;
+          opacity: 0.8;
         }
-        .question-name {
-          width: 815px;
-          height: 14px;
-          font-size: 14px;
-          font-weight: 400;
+        .question-item-type {
+          height: 16px;
+          font-size: 16px;
+          font-weight: 500;
           color: #333333;
-          line-height: 14px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          line-height: 16px;
         }
-        .question-type {
-          height: 14px;
-          font-size: 14px;
+        .qquestion-item-num {
+          height: 30px;
+          font-size: 16px;
           font-weight: 400;
-          color: #333333;
-          line-height: 14px;
-        }
-        .link-detail {
-          height: 14px;
-          font-size: 14px;
-          font-weight: 400;
-          color: #3ca7fa;
-          line-height: 14px;
+          color: #666666;
+          line-height: 30px;
         }
       }
     }

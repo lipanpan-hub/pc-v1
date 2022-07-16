@@ -11,6 +11,17 @@
             :width="90"
             :height="120"
           ></thumb-bar>
+          <img
+            v-else-if="
+              goods.type === 'mockpaper' ||
+                goods.type === 'paper' ||
+                goods.type === 'practice'
+            "
+            src="../../assets/img/commen/default-paper.png"
+            :border="4"
+            :width="160"
+            :height="120"
+          />
           <thumb-bar
             v-else
             :value="goods.icon"
@@ -198,7 +209,11 @@ export default {
       } else if (this.goods_type === "k12") {
         this.hasThumb = true;
       } else if (this.goods_type === "paper") {
-        this.hasThumb = false;
+        this.hasThumb = true;
+      } else if (this.goods_type === "mockpaper") {
+        this.hasThumb = true;
+      } else if (this.goods_type === "practice") {
+        this.hasThumb = true;
       }
       this.params();
     },

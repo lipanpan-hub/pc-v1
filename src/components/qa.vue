@@ -20,7 +20,10 @@
       </div>
     </div>
     <div class="info" :class="{ spcolor: spcolor }">
-      <span class="tit"
+      <span class="tit" v-if="spcolor"
+        >({{ num }}) {{ question.type_text }}（{{ question.score }}分）</span
+      >
+      <span class="tit" v-else
         >{{ num }}.{{ question.type_text }}（{{ question.score }}分）</span
       >
     </div>
@@ -73,14 +76,12 @@
       >
         <div class="pop-box">
           <div class="status" v-if="!wrongBook">
-            <span class="score" style="margin-left: 0px !important"
-              >本题得分：{{ score }}分</span
-            >
+            <span class="error">得分：{{ score }}</span>
           </div>
           <!-- <div class="answer" v-if="question.answer">
             答案：{{ question.answer }}
           </div> -->
-          <div class="remark" style="padding-top: 20px">
+          <div class="remark">
             <div>解析：</div>
             <div v-html="question.remark"></div>
           </div>
@@ -191,7 +192,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .spcolor {
-  background: #f4fafe !important;
+  // background: #f4fafe !important;
 }
 .choice-item {
   background-color: #f1f2f6;
@@ -252,7 +253,7 @@ export default {
       height: 18px;
       font-size: 18px;
       font-weight: 500;
-      color: #666666;
+      color: #333333;
       line-height: 18px;
     }
   }
@@ -311,38 +312,38 @@ export default {
       box-sizing: border-box;
       margin-top: 20px;
       display: grid;
-      gap: 15px;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 30px;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       .image-item {
-        width: 165px;
-        height: 124px;
-        text-align: center;
+        display: flex;
+        width: 80px;
+        height: 60px;
         .image-view {
-          width: 165px;
-          height: 124px;
+          width: 80px;
+          height: 60px;
           background-repeat: no-repeat;
           background-size: contain;
           background-position: center center;
         }
       }
       .upload-image-button {
-        width: 165px;
-        height: 124px;
+        width: 80px;
+        height: 60px;
         background-color: #f1f2f6;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
         img {
-          width: 50px;
-          height: 50px;
+          width: 80px;
+          height: 60px;
         }
         #file_input {
           position: absolute;
           top: 0;
           left: 0;
-          width: 165px;
-          height: 124px;
+          width: 80px;
+          height: 60px;
           opacity: 0;
         }
       }

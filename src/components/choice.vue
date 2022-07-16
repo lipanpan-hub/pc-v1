@@ -14,7 +14,10 @@
       </div>
     </div>
     <div class="info" :class="{ spcolor: spcolor }">
-      <span class="tit"
+      <span class="tit" v-if="spcolor"
+        >({{ num }}) {{ question.type_text }}（{{ question.score }}分）</span
+      >
+      <span class="tit" v-else
         >{{ num }}.{{ question.type_text }}（{{ question.score }}分）</span
       >
     </div>
@@ -49,11 +52,14 @@
       <div class="analysis-box" :class="{ spcolor: spcolor }">
         <div class="pop-box">
           <div class="status" v-if="!wrongBook">
-            <span class="success" v-if="isCorrect">正确</span>
-            <span class="error" v-else>错误</span>
-            <span class="score" v-if="isCorrect === 1"
-              >得分：{{ score }}分</span
-            >
+            <template v-if="isCorrect">
+              <span class="success">正确</span>
+              <span class="score">得分：{{ score }}</span>
+            </template>
+            <template v-else>
+              <span class="error">错误</span>
+              <span class="score error">得分：0</span>
+            </template>
           </div>
           <div class="answer">
             答案：{{ optionTypeTextMap[question.answer] }}
@@ -130,7 +136,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .spcolor {
-  background: #f4fafe !important;
+  // background: #f4fafe !important;
 }
 .choice-item {
   background-color: #f1f2f6;
@@ -182,7 +188,7 @@ export default {
       height: 18px;
       font-size: 18px;
       font-weight: 500;
-      color: #666666;
+      color: #333333;
       line-height: 18px;
     }
   }

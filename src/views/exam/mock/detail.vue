@@ -13,8 +13,8 @@
         <template v-else>
           <div class="title">{{ list.title }}</div>
           <div class="info">
-            <div class="info-item">总分：{{ list.score }}分</div>
-            <i></i>
+            <!--<div class="info-item">总分：{{ list.score }}分</div>
+            <i></i>-->
             <div class="info-item">及格分：{{ list.pass_score }}分</div>
             <i></i>
             <div class="info-item">题数：{{ sumQuestion }}道</div>
@@ -93,7 +93,7 @@ export default {
   },
   computed: {
     ...mapState(["isLogin", "user"]),
-    sumQuestion: function () {
+    sumQuestion: function() {
       let val = 0;
       if (this.questions.num && this.questions.num.choice) {
         val = val + parseInt(this.questions.num.choice);

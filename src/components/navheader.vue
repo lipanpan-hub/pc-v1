@@ -48,7 +48,7 @@
                 />
                 <div class="text-sm mt-1 text-center font-medium">VIP会员</div>
               </a>
-              <a
+              <!--<a
                 v-if="isLogin"
                 @click="$router.push({ name: 'MemberMessages' })"
                 style="opacitiy: 0.8"
@@ -67,8 +67,22 @@
                   v-if="newStatus"
                   class="w-2 h-2 bg-red-500 rounded-full absolute top-0 right-0"
                 ></div>
+              </a>-->
+              <a
+                @click="goStudy()"
+                style="opacitiy: 0.8"
+                class="relative rounded mr-12 text-gray-500 text-center hover:text-gray-900"
+              >
+                <img
+                  src="../assets/img/study/icon-mystudy.png"
+                  width="20"
+                  height="20"
+                  style="margin: 0 auto"
+                />
+                <div class="text-sm mt-1 text-center">
+                  <span>我的学习</span>
+                </div>
               </a>
-
               <a
                 v-if="!isLogin"
                 @click="goLogin()"
@@ -131,8 +145,12 @@
                 @mouseover="menu(item.children, index)"
                 @mouseout="clMenu()"
                 :class="{
-                  active: hash.match(item.url) && item.url !== '/',
-                  isIndex: '#' + item.url === hash,
+                  active:
+                    (hash.match(item.url) ||
+                      (item.url.substr(0, 1) === '#' &&
+                        hash.match(item.url.slice(1)))) &&
+                    item.url !== '/',
+                  isIndex: item.url === hash,
                 }"
               >
                 {{ item.name }}
@@ -148,7 +166,7 @@
                   >
                     <a
                       class="overflow-hidden"
-                      @click.stop="goChildPage(child.url, child.blank)"
+                      @click.stop="checkNav(child.url, child.blank)"
                       >{{ child.name }}</a
                     >
                   </div>
@@ -168,7 +186,7 @@ export default {
     return {
       loading: false,
       showKey: null,
-      hash: document.location.hash.split("?")[0],
+      hash: this.getHash(),
       memberCan: false,
       menuCan: false,
       newStatus: false,
@@ -183,7 +201,7 @@ export default {
   },
   watch: {
     $route(to, from) {
-      this.checkNav();
+      this.hash = this.getHash();
     },
     freshUnread() {
       if (this.freshUnread) {
@@ -201,6 +219,10 @@ export default {
       "changeDialogType",
       "removeUnread",
     ]),
+    getHash() {
+      let hash = document.location.hash.split("?")[0].replace("#", "");
+      return hash;
+    },
     getData() {
       if (this.loading) {
         return;
@@ -263,37 +285,18 @@ export default {
         });
     },
     checkNav(url, blank) {
-      this.hash = document.location.hash.split("?")[0];
-      if (url) {
-        if (blank === 0) {
-          if (url.match("https:") || url.match("http:")) {
-            window.location.href = url;
-          } else {
-            this.$router.push({ path: url });
-          }
-        } else {
-          if (url.match("https:") || url.match("http:")) {
-            window.open(url);
-          } else {
-            this.$router.resolve({ path: url });
-          }
-        }
+      if (!url || url.substr(0, 1) === "#") {
+        return;
       }
-    },
-    goChildPage(url, blank) {
-      if (blank === 0) {
-        if (url.match("https:") || url.match("http:")) {
+      if (url.match("https:") || url.match("http:")) {
+        if (blank === 0) {
           window.location.href = url;
         } else {
-          this.$router.push({ path: url });
-        }
-      } else {
-        if (url.match("https:") || url.match("http:")) {
           window.open(url);
-        } else {
-          this.$router.resolve({ path: url });
         }
+        return;
       }
+      this.$router.push({ path: url });
     },
     menu(val, index) {
       if (val && val.length > 0) {
@@ -326,6 +329,13 @@ export default {
         return;
       }
       this.$router.push({ path: "/share" });
+    },
+    goStudy() {
+      if (!this.isLogin) {
+        this.goLogin();
+        return;
+      }
+      this.$router.push({ name: "StudyCenter" });
     },
   },
 };

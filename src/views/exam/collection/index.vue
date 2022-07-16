@@ -12,33 +12,32 @@
     </div>
 
     <div class="contanier">
-      <div class="tit">收藏练习题</div>
-
-      <div class="question-box">
-        <template v-if="loading">
-          <skeletonPaperDetail></skeletonPaperDetail>
-        </template>
-        <template v-else-if="list.length > 0">
-          <div class="question-item" v-for="item in list" :key="item.id">
-            <div class="question-name" v-html="item.question.content"></div>
-            <div class="question-type">{{ item.question.type_text }}</div>
-            <a class="link-detail" @click="goDetail(item.question.id)"
-              >查看详情</a
-            >
-          </div>
-        </template>
-        <none type="white" v-else></none>
+      <div class="question-box" v-if="list">
+        <div class="question-item" @click="goDetail(1)" v-if="list[1] > 0">
+          <div class="question-item-type">单选题</div>
+          <div class="question-item-num">已收藏{{ list[1] }}题</div>
+        </div>
+        <div class="question-item" @click="goDetail(2)" v-if="list[2] > 0">
+          <div class="question-item-type">多选题</div>
+          <div class="question-item-num">已收藏{{ list[2] }}题</div>
+        </div>
+        <div class="question-item" @click="goDetail(5)" v-if="list[5] > 0">
+          <div class="question-item-type">判断题</div>
+          <div class="question-item-num">已收藏{{ list[5] }}题</div>
+        </div>
+        <div class="question-item" @click="goDetail(3)" v-if="list[3] > 0">
+          <div class="question-item-type">填空题</div>
+          <div class="question-item-num">已收藏{{ list[3] }}题</div>
+        </div>
+        <div class="question-item" @click="goDetail(4)" v-if="list[4] > 0">
+          <div class="question-item-type">问答题</div>
+          <div class="question-item-num">已收藏{{ list[4] }}题</div>
+        </div>
+        <div class="question-item" @click="goDetail(6)" v-if="list[6] > 0">
+          <div class="question-item-type">题帽题</div>
+          <div class="question-item-num">已收藏{{ list[6] }}题</div>
+        </div>
       </div>
-    </div>
-    <div id="page" v-show="list && total < pagination.size">
-      <page-box
-        :key="pagination.page"
-        :page="pagination.page"
-        :totals="total"
-        @current-change="changepage"
-        :pageSize="pagination.size"
-        :tab="false"
-      ></page-box>
     </div>
     <nav-footer></nav-footer>
   </div>
@@ -46,26 +45,15 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import NavFooter from "../../../components/footer.vue";
-import None from "../../../components/none.vue";
-import SkeletonPaperDetail from "../../../components/skeleton/skeletonPaperDetail.vue";
-import PageBox from "../../../components/page.vue";
 
 export default {
   components: {
     NavFooter,
-    None,
-    PageBox,
-    SkeletonPaperDetail,
   },
   data() {
     return {
-      list: [],
-      total: null,
+      list: null,
       loading: false,
-      pagination: {
-        page: 1,
-        size: 10000,
-      },
     };
   },
   computed: {
@@ -85,26 +73,23 @@ export default {
         return;
       }
       this.loading = true;
-      this.$api.Exam.Collection.Detail(this.pagination).then((res) => {
+      this.$api.Exam.Collection.Stats().then((res) => {
         this.loading = false;
-        this.list = res.data.data;
-        this.total = res.data.total;
+        this.list = res.data.types_count;
       });
-    },
-    changepage(item) {
-      this.pagination.size = item.pageSize;
-      this.pagination.page = item.currentPage;
-      this.getData();
     },
     goDetail(id) {
       if (!this.isLogin) {
         this.goLogin();
         return;
       }
+      if (this.list[id] === 0) {
+        return;
+      }
       this.$router.push({
         name: "ExamCollectionPlay",
         query: {
-          id: id,
+          type: id,
         },
       });
     },
@@ -258,59 +243,41 @@ export default {
     width: 1200px;
     min-height: 500px;
     margin: 0 auto;
-    overflow: hidden;
-    background: #ffffff;
-    padding: 30px;
     box-sizing: border-box;
-    .tit {
-      width: 100%;
-      height: 16px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #333333;
-      line-height: 16px;
-      margin-bottom: 30px;
-    }
+
     .question-box {
       width: 100%;
-      display: flex;
-      flex-direction: column;
-
+      display: grid;
+      gap: 30px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       .question-item {
-        width: 100%;
-        height: 40%;
+        width: 585px;
+        height: 116px;
+        background: #ffffff;
+        border-radius: 8px;
         display: flex;
-        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-        &:last-child {
-          margin-bottom: 0px;
+        box-sizing: border-box;
+        padding: 30px;
+        cursor: pointer;
+        &:hover {
+          box-shadow: 0px 4px 8px 0px #e5e5e5;
+          opacity: 0.8;
         }
-        .question-name {
-          width: 815px;
-          height: 14px;
-          font-size: 14px;
-          font-weight: 400;
+        .question-item-type {
+          height: 16px;
+          font-size: 16px;
+          font-weight: 500;
           color: #333333;
-          line-height: 14px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          line-height: 16px;
         }
-        .question-type {
-          height: 14px;
-          font-size: 14px;
+        .qquestion-item-num {
+          height: 30px;
+          font-size: 16px;
           font-weight: 400;
-          color: #333333;
-          line-height: 14px;
-        }
-        .link-detail {
-          height: 14px;
-          font-size: 14px;
-          font-weight: 400;
-          color: #3ca7fa;
-          line-height: 14px;
+          color: #666666;
+          line-height: 30px;
         }
       }
     }

@@ -357,6 +357,10 @@ export default {
         });
     },
     questionVote(answerItem) {
+      if (!this.isLogin) {
+        this.goLogin();
+        return;
+      }
       this.$api.Wenda.Vote({
         id: answerItem.id,
         type: 1,
@@ -377,6 +381,10 @@ export default {
         });
     },
     ReplyAnswer(id, userId, nick_name, index) {
+      if (!this.isLogin) {
+        this.goLogin();
+        return;
+      }
       if (!nick_name) {
         this.$message.error("回复的用户不存在");
         return;

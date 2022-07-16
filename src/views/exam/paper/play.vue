@@ -59,17 +59,25 @@
     </div>
     <div class="navheader">
       <div class="top">
-        <div class="top-left" @click="goBack()">
+        <div class="top-left" v-if="userPaper && userPaper.status === 1">
+          {{ paper.title }}
+        </div>
+        <div
+          class="top-left"
+          @click="goBack()"
+          v-if="userPaper && userPaper.status === 2"
+        >
           <img
             class="icon-back"
             src="../../../assets/img/commen/icon-back-h.png"
-          />{{ paper.title }}
+          />
+          {{ paper.title }}
         </div>
         <div class="top-right">
           <div class="score" v-if="userPaper && userPaper.status === 2">
-            最终得分：{{ userPaper.score }}
+            考试得分：<strong>{{ userPaper.score }}分</strong>
           </div>
-          <div class="score-info">
+          <div class="score-info" v-if="userPaper && userPaper.status === 1">
             及格分：{{ paper.pass_score }}分/{{ paper.score }}分
           </div>
           <div
@@ -92,100 +100,138 @@
       </div>
     </div>
     <div class="paper-box">
-      <div class="questions-box" v-if="questions && userPaper">
-        <template v-for="(question, index) in questions">
-          <div class="item" :key="index">
-            <template v-if="userPaper.status === 2 && collects">
-              <div
-                class="collect-icon"
-                @click="collectAnswer(question.question_id)"
-              >
-                <img
-                  v-if="collects[question.question_id] === 1"
-                  src="../../../assets/img/commen/icon-collect-h.png"
-                />
-                <img
-                  v-else
-                  src="../../../assets/img/commen/icon-collect-n.png"
-                />
-              </div>
-            </template>
-            <!-- 单选 -->
-            <question-choice
-              :num="index + 1"
-              v-if="question.question.type === 1"
-              :question="question.question"
-              :reply="question.answer_content"
-              :score="question.score"
-              :is-correct="question.is_correct"
-              @update="questionUpdate"
-              :is-over="userPaper.status === 2"
-            ></question-choice>
-
-            <!-- 多选 -->
-            <question-select
-              :num="index + 1"
-              v-else-if="question.question.type === 2"
-              :question="question.question"
-              :reply="question.answer_content"
-              :score="question.score"
-              :is-correct="question.is_correct"
-              @update="questionUpdate"
-              :is-over="userPaper.status === 2"
-            ></question-select>
-
-            <!-- 填空 -->
-            <question-input
-              :num="index + 1"
-              v-else-if="question.question.type === 3"
-              :question="question.question"
-              :reply="question.answer_content"
-              :score="question.score"
-              :is-correct="question.is_correct"
-              @update="questionUpdate"
-              :is-over="userPaper.status === 2"
-            ></question-input>
-
-            <!-- 问答 -->
-            <question-qa
-              :num="index + 1"
-              v-else-if="question.question.type === 4"
-              :question="question.question"
-              :reply="question.answer_content"
-              :thumbs="question.thumbs_rows"
-              :score="question.score"
-              :is-correct="question.is_correct"
-              @update="questionUpdate"
-              :show-image="true"
-              :is-over="userPaper.status === 2"
-            ></question-qa>
-
-            <!-- 判断 -->
-            <question-judge
-              :num="index + 1"
-              v-else-if="question.question.type === 5"
-              :question="question.question"
-              :score="question.score"
-              :is-correct="question.is_correct"
-              :reply="parseInt(question.answer_content)"
-              @update="questionUpdate"
-              :is-over="userPaper.status === 2"
-            ></question-judge>
-
-            <!-- 题帽题 -->
-            <question-cap
-              :num="index + 1"
-              v-else-if="question.question.type === 6"
-              :question="question.question"
-              :score="question.score"
-              :show-image="true"
-              :is-correct="false"
-              :reply="question.answer_content"
-              @update="questionUpdate"
-              :is-over="userPaper.status === 2"
-            ></question-cap>
+      <div class="fix-left-box">
+        <div
+          class="number-box"
+          v-show="questions && userPaper && userPaper.status === 1"
+        >
+          <div
+            class="num"
+            :class="{
+              active: activeQuestions[item.question_id],
+            }"
+            v-for="(item, index) in questions"
+            :key="index"
+            @click="goDetail(index)"
+          >
+            {{ index + 1 }}
           </div>
-        </template>
+        </div>
+        <div
+          class="number-box"
+          v-show="questions && userPaper && userPaper.status === 2"
+        >
+          <div
+            class="num"
+            :class="{
+              correct: item.is_correct === 1,
+              error: item.is_correct === 0,
+              no: item.question.type === 4 || item.question.type === 6,
+            }"
+            v-for="(item, index) in questions"
+            :key="index"
+            @click="goDetail(index)"
+          >
+            {{ index + 1 }}
+          </div>
+        </div>
+      </div>
+      <div class="right-box">
+        <div class="questions-box" v-if="questions && userPaper">
+          <template v-for="(question, index) in questions">
+            <div class="item" :key="index" :id="index">
+              <template v-if="userPaper.status === 2 && collects">
+                <div
+                  class="collect-icon"
+                  @click="collectAnswer(question.question_id)"
+                >
+                  <template v-if="collects[question.question_id] === 1">
+                    <img src="../../../assets/img/commen/icon-collect-h.png" />
+                    <strong>已收藏</strong>
+                  </template>
+                  <template v-else>
+                    <img src="../../../assets/img/commen/icon-collect-n.png" />
+                    收藏试题
+                  </template>
+                </div>
+              </template>
+              <!-- 单选 -->
+              <question-choice
+                :num="index + 1"
+                v-if="question.question.type === 1"
+                :question="question.question"
+                :reply="question.answer_content"
+                :score="question.score"
+                :is-correct="question.is_correct"
+                @update="questionUpdate"
+                :is-over="userPaper.status === 2"
+              ></question-choice>
+
+              <!-- 多选 -->
+              <question-select
+                :num="index + 1"
+                v-else-if="question.question.type === 2"
+                :question="question.question"
+                :reply="question.answer_content"
+                :score="question.score"
+                :is-correct="question.is_correct"
+                @update="questionUpdate"
+                :is-over="userPaper.status === 2"
+              ></question-select>
+
+              <!-- 填空 -->
+              <question-input
+                :num="index + 1"
+                v-else-if="question.question.type === 3"
+                :question="question.question"
+                :reply="question.answer_content"
+                :score="question.score"
+                :is-correct="question.is_correct"
+                @update="questionUpdate"
+                :is-over="userPaper.status === 2"
+              ></question-input>
+
+              <!-- 问答 -->
+              <question-qa
+                :num="index + 1"
+                v-else-if="question.question.type === 4"
+                :question="question.question"
+                :reply="question.answer_content"
+                :thumbs="question.thumbs_rows"
+                :score="question.score"
+                :is-correct="question.is_correct"
+                @update="questionUpdate"
+                :show-image="true"
+                :is-over="userPaper.status === 2"
+              ></question-qa>
+
+              <!-- 判断 -->
+              <question-judge
+                :num="index + 1"
+                v-else-if="question.question.type === 5"
+                :question="question.question"
+                :score="question.score"
+                :is-correct="question.is_correct"
+                :reply="parseInt(question.answer_content)"
+                @update="questionUpdate"
+                :is-over="userPaper.status === 2"
+              ></question-judge>
+
+              <!-- 题帽题 -->
+              <question-cap
+                :num="index + 1"
+                v-else-if="question.question.type === 6"
+                :question="question.question"
+                :score="question.score"
+                :show-image="true"
+                :is-correct="false"
+                :reply="question.answer_content"
+                @update="questionUpdate"
+                :is-over="userPaper.status === 2"
+              ></question-cap>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
     <snap-shot
@@ -194,7 +240,6 @@
       v-if="configFunc.snapshort && userPaper && userPaper.status === 1"
       :duration="workTime"
     ></snap-shot>
-    <nav-footer></nav-footer>
   </div>
 </template>
 <script>
@@ -205,7 +250,6 @@ import QuestionInput from "../../../components/input.vue";
 import QuestionQa from "../../../components/qa.vue";
 import QuestionJudge from "../../../components/judge.vue";
 import QuestionCap from "../../../components/cap.vue";
-import NavFooter from "../../../components/footer.vue";
 import SnapShot from "../../../components/snapshort.vue";
 
 export default {
@@ -216,7 +260,6 @@ export default {
     QuestionQa,
     QuestionJudge,
     QuestionCap,
-    NavFooter,
     SnapShot,
   },
   data() {
@@ -245,7 +288,7 @@ export default {
         sec: 0,
       },
       collects: null,
-      notComplete: [],
+      activeQuestions: [],
     };
   },
   beforeDestroy() {
@@ -258,6 +301,11 @@ export default {
     this.getData();
   },
   methods: {
+    goDetail(val) {
+      document.documentElement.scrollTop = document.getElementById(
+        val
+      ).offsetTop;
+    },
     goBack() {
       if (this.userPaper.status === 1) {
         this.results.openmask = true;
@@ -297,19 +345,22 @@ export default {
         answer: answer,
         question_id: qid,
       });
-      this.questions.forEach((item) => {
-        if (!item.answer_content && item.question_id === qid && answer !== "") {
-          if (this.notComplete.length === 0) {
-            this.$set(this.notComplete, qid, true);
-            this.surplus--;
-          } else {
-            if (!this.notComplete[qid]) {
-              this.$set(this.notComplete, qid, true);
-              this.surplus--;
-            }
-          }
+      if (typeof qid == "string" && qid.indexOf("-") != -1) {
+        this.$set(
+          this.activeQuestions,
+          qid.substring(0, qid.indexOf("-")),
+          true
+        );
+      } else {
+        this.$set(this.activeQuestions, qid, true);
+      }
+      let num = 0;
+      for (let i = 0; i < this.activeQuestions.length; i++) {
+        if (this.activeQuestions[i]) {
+          num++;
         }
-      });
+      }
+      this.surplus = this.questions.length - num;
     },
     submitAll() {
       this.results.openmask = true;
@@ -364,58 +415,17 @@ export default {
             return;
           }
           let unread = 0;
-          let params = [];
-          let choice = [];
-          let select = [];
-          let input = [];
-          let qa = [];
-          let judge = [];
-          let cap = [];
           normaldata.forEach((item) => {
             if (!item.answer_content) {
               unread++;
             }
-            if (item.question) {
-              if (item.question.type === 1) {
-                choice.push(item);
-              }
-              if (item.question.type === 2) {
-                select.push(item);
-              }
-              if (item.question.type === 3) {
-                input.push(item);
-              }
-              if (item.question.type === 4) {
-                qa.push(item);
-              }
-              if (item.question.type === 5) {
-                judge.push(item);
-              }
-              if (item.question.type === 6) {
-                cap.push(item);
-              }
+          });
+          this.questions = normaldata;
+          this.questions.forEach((item) => {
+            if (item.answer_content) {
+              this.$set(this.activeQuestions, item.question_id, true);
             }
           });
-
-          if (choice.length > 0) {
-            params.push(...choice);
-          }
-          if (select.length > 0) {
-            params.push(...select);
-          }
-          if (input.length > 0) {
-            params.push(...input);
-          }
-          if (qa.length > 0) {
-            params.push(...qa);
-          }
-          if (judge.length > 0) {
-            params.push(...judge);
-          }
-          if (cap.length > 0) {
-            params.push(...cap);
-          }
-          this.questions = params;
           this.surplus = unread;
           if (this.userPaper.status === 1) {
             this.timer = setInterval(() => {
@@ -527,11 +537,13 @@ export default {
         align-items: center;
         .score {
           height: 24px;
-          font-size: 24px;
+          font-size: 20px;
           font-weight: 600;
           color: #333333;
           line-height: 24px;
-          margin-right: 50px;
+          strong {
+            color: #ff4d4f;
+          }
         }
         .score-info {
           height: 16px;
@@ -569,27 +581,119 @@ export default {
     display: flex;
     width: 1200px;
     margin: 0 auto;
-    min-height: 600px;
-    background: #ffffff;
-    border-radius: 8px;
-    margin-top: 50px;
-    .questions-box {
-      width: 1200px;
+    min-height: 500px;
+    margin-top: 30px;
+    margin-bottom: 150px;
+    position: relative;
+    .fix-left-box {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 100px;
+      z-index: 50;
+      min-height: 500px;
+      background: #fff;
+      border-radius: 8px;
+      .number-box {
+        width: 100%;
+        padding: 30px;
+        box-sizing: border-box;
+        display: grid;
+        grid-row-gap: 30px;
+        grid-column-gap: 22px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        .num {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 1px solid #3ca7fa;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3ca7fa;
+          font-weight: 500;
+          font-size: 16px;
+          &:hover {
+            opacity: 0.8;
+          }
+          &.correct {
+            border: none;
+            background: #04c877;
+            color: #fff;
+          }
+          &.error {
+            border: none;
+            color: #fff;
+            background: #f63b46;
+          }
+          &.no {
+            border: none;
+            color: #fff;
+            background: #fa8c16;
+          }
+          &.active {
+            border: none;
+            background: #3ca7fa;
+            color: #fff;
+          }
+        }
+      }
+    }
+    .right-box {
+      margin-left: 330px;
+      width: 870px;
+      min-height: 500px;
       height: auto;
       float: left;
-      .item {
-        width: 100%;
+      .title-box {
+        width: 870px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-sizing: border-box;
+        padding: 30px;
+        height: auto;
+        font-size: 18px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 18px;
+        margin-bottom: 20px;
+      }
+      .questions-box {
+        width: 870px;
         height: auto;
         float: left;
-        position: relative;
-        .collect-icon {
-          position: absolute;
-          width: 28px;
-          height: 28px;
-          cursor: pointer;
-          right: 30px;
-          top: 30px;
-          z-index: 10;
+        .item {
+          width: 100%;
+          height: auto;
+          float: left;
+          position: relative;
+          border-radius: 8px;
+          overflow: hidden;
+          margin-bottom: 20px;
+          .collect-icon {
+            position: absolute;
+            display: flex;
+            width: auto;
+            height: 24px;
+            cursor: pointer;
+            right: 30px;
+            top: 30px;
+            z-index: 10;
+            font-size: 14px;
+            font-weight: 400;
+            color: #666666;
+            line-height: 24px;
+            strong {
+              color: #ffc53d;
+            }
+            img {
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+            }
+          }
         }
       }
     }

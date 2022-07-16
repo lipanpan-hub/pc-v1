@@ -52,7 +52,7 @@ export default {
   width: 100%;
   .number-box {
     width: 100%;
-    padding: 50px 30px;
+    padding: 30px;
     box-sizing: border-box;
     display: grid;
     grid-row-gap: 23px;
@@ -97,7 +97,7 @@ export default {
   }
   .number-box2 {
     width: 100%;
-    padding: 50px 30px;
+    padding: 30px;
     box-sizing: border-box;
     display: grid;
     gap: 23px;

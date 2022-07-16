@@ -42,42 +42,6 @@ export default {
     menus() {
       let menus = [
         {
-          name: "学习",
-          status: true,
-          childrens: [
-            {
-              name: "点播课程",
-              id: 1,
-              path: "MemberCourses",
-              status: true,
-            },
-            {
-              name: "直播课程",
-              id: 2,
-              path: "MemberLive",
-              status: this.configFunc["live"],
-            },
-            {
-              name: "电子书",
-              id: 3,
-              path: "MemberBooks",
-              status: this.configFunc["book"],
-            },
-            {
-              name: "图文",
-              id: 4,
-              path: "MemberTopic",
-              status: this.configFunc["topic"],
-            },
-            {
-              name: "我的班课",
-              id: 17,
-              path: "MemberK12",
-              status: this.configFunc["ke"],
-            },
-          ],
-        },
-        {
           name: "用户",
           status: true,
           childrens: [

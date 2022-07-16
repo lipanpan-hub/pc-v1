@@ -139,6 +139,7 @@ export default {
     this.$utils.scrollTopRecord(this.pageName);
     next();
   },
+
   methods: {
     changefilter() {
       let cid = this.pagination.cid;
@@ -223,7 +224,6 @@ export default {
   .contanier {
     width: 1200px;
     margin: 0 auto;
-    overflow: hidden;
     display: block;
     display: flex;
     flex-direction: row;
@@ -253,6 +253,10 @@ export default {
         border-radius: 8px;
         padding: 30px;
         box-sizing: border-box;
+        position: -webkit-sticky; /* Safari */
+        position: sticky;
+        top: 0;
+
         .tit {
           width: 100%;
           height: 18px;

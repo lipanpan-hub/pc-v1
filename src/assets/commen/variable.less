@@ -306,13 +306,14 @@ summary {
   .pop-box {
     border-radius: 8px;
     border: 1px solid #3ca7fa;
-    padding: 30px 26px;
+    padding: 20px;
     box-sizing: border-box;
     color: #3ca7fa;
 
     .status {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       font-size: 16px;
+      color: #04c877;
 
       &:last-child {
         margin-bottom: 0px;
@@ -323,13 +324,16 @@ summary {
       }
 
       .score {
-        color: #e1a500;
+        color: #04c877;
         margin-left: 32px;
+        &.error {
+          color: #ff5068;
+        }
       }
     }
 
     .answer {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
 
       &:last-child {
         margin-bottom: 0px;
@@ -342,7 +346,7 @@ summary {
           display: flex;
           flex-direction: row;
           flex-wrap: wrap;
-          margin-bottom: 30px;
+          margin-bottom: 10px;
 
           &:last-child {
             margin-bottom: 0px;
@@ -353,6 +357,9 @@ summary {
 
     .remark {
       font-size: 14px;
+      &.active {
+        padding-top: 20px;
+      }
 
       div {
         font-weight: 400;
@@ -361,6 +368,12 @@ summary {
         &:first-child {
           font-weight: 500;
           margin-bottom: 10px;
+        }
+
+        p {
+          img {
+            width: 400px;
+          }
         }
       }
     }
@@ -1506,6 +1519,7 @@ video {
     img {
       display: inline-block;
       max-width: 200px !important;
+      margin: 5px 0px;
     }
   }
 }

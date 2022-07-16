@@ -705,6 +705,11 @@ export default {
     mobile() {
       this.messageForm.mobile = this.mobile;
     },
+    $route(to, from) {
+      clearInterval(this.timer);
+      clearInterval(this.interval);
+      this.cancel();
+    },
   },
   computed: {
     ...mapState(["config"]),
@@ -770,6 +775,7 @@ export default {
           this.$api.User.Detail()
             .then((res) => {
               this.loginHandle(res.data);
+              clearInterval(this.timer);
               this.resetDialog();
               this.hideLoginDialog();
               this.redirectHandler();
@@ -791,6 +797,7 @@ export default {
       this.$api.Member.Detail().then((res) => {
         if (res.data.is_bind_wechat === 1) {
           this.$message.success("绑定成功");
+          clearInterval(this.timer);
           this.resetDialog();
           this.hideLoginDialog();
           this.bindSuccess();

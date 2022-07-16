@@ -14,126 +14,139 @@
         </div>
       </div>
     </div>
-    <div class="project-box">
-      <div class="left-box">
-        <NumberSheet
-          v-if="qidArr"
-          type="collection"
-          :activeNum="activeQid"
-          :qidArr="qidArr"
-          :configkey="configkey"
-          @change="changeQid"
-        ></NumberSheet>
-      </div>
-      <div class="right-box">
-        <template v-if="loading">
-          <skeletonPaperQuestion></skeletonPaperQuestion>
-        </template>
-        <template v-else-if="question">
-          <div class="delete-icon" @click="collectAnswer()">
-            <img
-              v-if="isCollected"
-              src="../../../assets/img/commen/icon-collect-h.png"
-            />
-            <img v-else src="../../../assets/img/commen/icon-collect-n.png" />
-          </div>
-          <div class="collection-join-box">
-            <div class="question-content">
-              <!-- 单选 -->
-              <question-choice
-                :num="activeQid"
-                v-if="question.type === 1"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                @update="questionUpdate"
-                :score="question.score"
-                :is-over="showAnswer"
-                :reply="null"
-              ></question-choice>
-
-              <!-- 多选 -->
-              <question-select
-                :num="activeQid"
-                v-else-if="question.type === 2"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                @update="questionUpdate"
-                :score="question.score"
-                :is-over="showAnswer"
-                :reply="''"
-              ></question-select>
-
-              <!-- 填空 -->
-              <question-input
-                :num="activeQid"
-                v-else-if="question.type === 3"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                @update="questionUpdate"
-                :score="question.score"
-                :is-over="showAnswer"
-                :reply="''"
-              ></question-input>
-
-              <!-- 问答 -->
-              <question-qa
-                :num="activeQid"
-                v-else-if="question.type === 4"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                @update="questionUpdate"
-                :show-image="false"
-                :score="question.score"
-                :is-over="showAnswer"
-              ></question-qa>
-
-              <!-- 判断 -->
-              <question-judge
-                :num="activeQid"
-                v-else-if="question.type === 5"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                :score="question.score"
-                @update="questionUpdate"
-                :is-over="showAnswer"
-                :reply="null"
-              ></question-judge>
-
-              <!-- 题帽题 -->
-              <question-cap
-                :num="activeQid"
-                v-else-if="question.type === 6"
-                :wrongBook="true"
-                :question="question"
-                :is-correct="false"
-                :score="question.score"
-                :show-image="false"
-                @update="questionUpdate"
-                :is-over="showAnswer"
-              ></question-cap>
-            </div>
-          </div>
-        </template>
-        <div
-          class="buttons-box"
-          v-if="
-            question &&
-            (question.type === 2 ||
-              question.type === 3 ||
-              question.type === 4 ||
-              question.type === 6)
-          "
-        >
-          <div class="see-answer" @click="seeAnswer()">{{ showText }}</div>
-        </div>
-      </div>
+    <div class="filter-two-class">
+      <filter-two-class
+        v-show="!navLoading"
+        :categories="categories"
+        :cid="cid"
+        :child="child"
+        @change="filterChange"
+      ></filter-two-class>
+      <template v-if="navLoading">
+        <skeletonPaperNav></skeletonPaperNav>
+      </template>
     </div>
-    <nav-footer></nav-footer>
+    <div class="project-box">
+      <template v-if="qidArr.length > 0">
+        <div class="left-box">
+          <NumberSheet
+            type="collection"
+            :activeNum="activeQid"
+            :qidArr="qidArr"
+            :configkey="configkey"
+            @change="changeQid"
+          ></NumberSheet>
+        </div>
+        <div class="right-box">
+          <template v-if="question">
+            <div class="delete-icon" @click="collectAnswer()">
+              <template v-if="isCollected">
+                <img src="../../../assets/img/commen/icon-collect-h.png" />
+                <strong>已收藏</strong>
+              </template>
+              <template v-else>
+                <img src="../../../assets/img/commen/icon-collect-n.png" />
+                收藏试题
+              </template>
+            </div>
+            <div class="collection-join-box">
+              <div class="question-content">
+                <!-- 单选 -->
+                <question-choice
+                  :num="activeQid"
+                  v-if="question.type === 1"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  @update="questionUpdate"
+                  :score="question.score"
+                  :is-over="showAnswer"
+                  :reply="null"
+                ></question-choice>
+
+                <!-- 多选 -->
+                <question-select
+                  :num="activeQid"
+                  v-else-if="question.type === 2"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  @update="questionUpdate"
+                  :score="question.score"
+                  :is-over="showAnswer"
+                  :reply="''"
+                ></question-select>
+
+                <!-- 填空 -->
+                <question-input
+                  :num="activeQid"
+                  v-else-if="question.type === 3"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  @update="questionUpdate"
+                  :score="question.score"
+                  :is-over="showAnswer"
+                  :reply="''"
+                ></question-input>
+
+                <!-- 问答 -->
+                <question-qa
+                  :num="activeQid"
+                  v-else-if="question.type === 4"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  @update="questionUpdate"
+                  :show-image="false"
+                  :score="question.score"
+                  :is-over="showAnswer"
+                ></question-qa>
+
+                <!-- 判断 -->
+                <question-judge
+                  :num="activeQid"
+                  v-else-if="question.type === 5"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  :score="question.score"
+                  @update="questionUpdate"
+                  :is-over="showAnswer"
+                  :reply="null"
+                ></question-judge>
+
+                <!-- 题帽题 -->
+                <question-cap
+                  :num="activeQid"
+                  v-else-if="question.type === 6"
+                  :wrongBook="true"
+                  :question="question"
+                  :is-correct="false"
+                  :score="question.score"
+                  :show-image="false"
+                  @update="questionUpdate"
+                  :is-over="showAnswer"
+                ></question-cap>
+              </div>
+            </div>
+          </template>
+          <div
+            class="buttons-box"
+            v-if="
+              question &&
+                (question.type === 2 ||
+                  question.type === 3 ||
+                  question.type === 4 ||
+                  question.type === 6)
+            "
+          >
+            <div class="see-answer" @click="seeAnswer()">{{ showText }}</div>
+          </div>
+        </div>
+      </template>
+      <none v-else></none>
+    </div>
   </div>
 </template>
 <script>
@@ -144,8 +157,9 @@ import QuestionQa from "../../../components/qa.vue";
 import QuestionJudge from "../../../components/judge.vue";
 import QuestionCap from "../../../components/cap.vue";
 import NumberSheet from "../../../components/numbersheet.vue";
-import NavFooter from "../../../components/footer.vue";
-import SkeletonPaperQuestion from "../../../components/skeleton/skeletonPaperQuestion.vue";
+import FilterTwoClass from "../../../components/exam-play-categories.vue";
+import SkeletonPaperNav from "../../../components/skeleton/skeletonPaperNav.vue";
+import None from "@/components/none.vue";
 
 export default {
   components: {
@@ -156,12 +170,13 @@ export default {
     QuestionJudge,
     QuestionCap,
     NumberSheet,
-    NavFooter,
-    SkeletonPaperQuestion,
+    FilterTwoClass,
+    SkeletonPaperNav,
+    None,
   },
   data() {
     return {
-      id: this.$route.query.id,
+      type: this.$route.query.type,
       mode: this.$route.query.mode,
       isCollected: false,
       question: [],
@@ -171,9 +186,15 @@ export default {
       showText: "对答案",
       loading: false,
       configkey: [],
+      categories: [],
+      navLoading: false,
+      cid: 0,
+      child: 0,
     };
   },
   mounted() {
+    this.navLoading = true;
+    this.getParams();
     this.getData();
   },
   watch: {
@@ -184,6 +205,32 @@ export default {
     },
   },
   methods: {
+    filterChange(cid1, cid2) {
+      this.cid = cid1;
+      this.child = cid2;
+      this.getData();
+    },
+    getParams() {
+      this.$api.Exam.Collection.Stats({
+        question_type: this.type,
+      }).then((res) => {
+        this.navLoading = false;
+        let categories_count = res.data.categories_count;
+        let categories = res.data.categories;
+        for (let i = 0; i < categories.length; i++) {
+          categories[i].name =
+            categories[i].name + "(" + categories_count[categories[i].id] + ")";
+          if (categories[i].children.length > 0) {
+            let children = categories[i].children;
+            for (let j = 0; j < children.length; j++) {
+              children[j].name =
+                children[j].name + "(" + categories_count[children[j].id] + ")";
+            }
+          }
+        }
+        this.categories = categories;
+      });
+    },
     changeQid(val) {
       this.activeQid = val;
     },
@@ -206,39 +253,27 @@ export default {
         return;
       }
       this.loading = true;
-      if (this.id) {
-        this.$api.Exam.PracticeQuestion(0, this.id)
-          .then((res) => {
-            this.loading = false;
-            let question = res.data.question;
-            this.question = question;
-            this.qidArr.push(this.question.id);
-            this.collectStatus();
-            for (var i = 0; i < this.qidArr.length; i++) {
-              this.configkey.push(false);
-            }
-          })
-          .catch((e) => {
-            this.loading = false;
-            this.$message.error(e.message);
-          });
-      }
-      if (this.mode === "collect") {
-        this.$api.Exam.Collection.OrderMode()
-          .then((res) => {
-            this.loading = false;
-            this.question = res.data.first_question;
-            this.qidArr = res.data.qid_arr;
-            this.collectStatus();
-            for (var i = 0; i < this.qidArr.length; i++) {
-              this.configkey.push(false);
-            }
-          })
-          .catch((e) => {
-            this.loading = false;
-            this.$message.error(e.message);
-          });
-      }
+      this.$api.Exam.Collection.OrderMode({
+        type: this.type,
+        cid1: this.cid,
+        cid2: this.child,
+      })
+        .then((res) => {
+          this.loading = false;
+          this.question = res.data.first_question;
+          this.qidArr = res.data.questions_ids;
+          this.collectStatus();
+          for (var i = 0; i < this.qidArr.length; i++) {
+            this.configkey.push(false);
+          }
+        })
+        .catch((e) => {
+          this.loading = false;
+          this.activeQid = 1;
+          this.qidArr = [];
+          this.question = null;
+          // this.$message.error(e.message);
+        });
     },
     getQuestion() {
       if (this.loading) {
@@ -247,7 +282,9 @@ export default {
       this.loading = true;
       this.question = null;
       let questionId = this.qidArr[this.activeQid - 1];
-      this.$api.Exam.PracticeQuestion(0, questionId)
+      this.$api.Exam.NewQuestion(questionId, {
+        from: "collection",
+      })
         .then((res) => {
           this.loading = false;
           let question = res.data.question;
@@ -386,33 +423,69 @@ export default {
       }
     }
   }
+  .filter-two-class {
+    display: flex;
+    width: 1200px;
+    background: #fff;
+    margin: 0 auto;
+    height: auto;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 15px 30px 5px 30px;
+    margin-top: 30px;
+  }
   .project-box {
     display: flex;
     width: 1200px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: row;
+    margin-top: 30px;
+    margin-bottom: 150px;
+    position: relative;
+    .collection-join-box {
+      width: 870px;
+      height: auto;
+      float: left;
+      border-radius: 8px;
+      overflow: hidden;
+    }
     .left-box {
       width: 300px;
-      height: 1178px;
-      background: #ffffff;
-      margin-right: 30px;
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+      float: left;
+      background: #fff;
+      border-radius: 8px;
       overflow-y: auto;
     }
     .right-box {
+      margin-left: 30px;
+      width: 870px;
+      min-height: 500px;
+      height: auto;
+      float: left;
       position: relative;
-      margin-top: 30px;
-      width: 872px;
-      border-radius: 8px;
-      box-sizing: border-box;
       .delete-icon {
         position: absolute;
-        width: 28px;
-        height: 28px;
+        display: flex;
+        width: auto;
+        height: 24px;
         cursor: pointer;
         right: 30px;
         top: 30px;
         z-index: 10;
+        font-size: 14px;
+        font-weight: 400;
+        color: #666666;
+        line-height: 24px;
+        strong {
+          color: #ffc53d;
+        }
+        img {
+          width: 24px;
+          height: 24px;
+          margin-right: 10px;
+        }
       }
       .buttons-box {
         width: 100%;

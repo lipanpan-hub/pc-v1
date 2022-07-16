@@ -1,12 +1,12 @@
 <template>
   <div class="content">
+    <div class="nav">
+      <a @click="$router.push({ name: 'index' })">首页</a> /
+      <a @click="$router.push({ name: 'topic' })">图文</a> /
+      <span>{{ topic.title }}</span>
+    </div>
     <div class="box">
       <div class="topic-box">
-        <div class="nav">
-          <a @click="$router.push({ name: 'index' })">首页</a> /
-          <a @click="$router.push({ name: 'topic' })">图文</a> /
-          <span>{{ topic.title }}</span>
-        </div>
         <template v-if="loading">
           <skeletonTopicDetail></skeletonTopicDetail>
         </template>
@@ -106,7 +106,7 @@
                       :class="{ trans: configInput[index] === true }"
                       class="reply-answer"
                       v-if="isBuy"
-                      @click="showReply(index)"
+                      @click="showReply(item.id)"
                     >
                       回复
                     </div>
@@ -120,7 +120,7 @@
                     </div>
                   </div>
                   <div
-                    v-if="isLogin && isBuy && configInput[index] === true"
+                    v-if="isLogin && isBuy && configInput[item.id] === true"
                     class="one-class-replybox"
                   >
                     <input
@@ -143,8 +143,8 @@
                     <template v-if="replyAnswers.length > 0">
                       <div
                         class="reply-list-item"
-                        v-for="(replyItem, index2) in replyAnswers[index]"
-                        :key="index2"
+                        v-for="replyItem in replyAnswers[index]"
+                        :key="replyItem.id"
                       >
                         <div class="reply-avatar">
                           <img
@@ -175,13 +175,15 @@
                           <div
                             v-if="isBuy"
                             class="answer-item"
-                            @click="showReply2(index2)"
+                            @click="showReply(replyItem.id)"
                           >
                             回复
                           </div>
                           <div
                             v-if="
-                              isLogin && isBuy && configInput2[index2] === true
+                              isLogin &&
+                                isBuy &&
+                                configInput[replyItem.id] === true
                             "
                             class="Two-class-replybox"
                           >
@@ -334,7 +336,6 @@ export default {
       },
       configkey: [],
       configInput: [],
-      configInput2: [],
       replyAnswers: [],
       answerId: null,
     };
@@ -366,11 +367,13 @@ export default {
         }
       });
     },
-    showReply(index) {
-      this.$set(this.configInput, index, !this.configInput[index]);
-    },
-    showReply2(index2) {
-      this.$set(this.configInput2, index2, !this.configInput2[index2]);
+    showReply(id) {
+      if (!this.isLogin) {
+        this.goLogin();
+        return;
+      }
+      this.configInput = [];
+      this.$set(this.configInput, id, true);
     },
     getAnswer(index, id) {
       this.$set(this.configkey, index, !this.configkey[index]);
@@ -424,7 +427,6 @@ export default {
       this.comment.list = [];
       this.configkey = [];
       this.configInput = [];
-      this.configInput2 = [];
       this.replyAnswers = [];
       this.comment.content = "";
     },
@@ -435,10 +437,27 @@ export default {
       this.$api.Topic.SubmitComment(this.topic.id, {
         content: this.comment.content,
       })
-        .then(() => {
+        .then((res) => {
           this.$message.success("评论成功");
-          this.resetComment();
-          this.getComments();
+          let item = {
+            id: res.data.comment_id,
+            parent_id: 0,
+            content: this.comment.content,
+            children_count: 0,
+            reply_comment_id: 0,
+            reply_comment: null,
+            reply_user: [],
+            reply_user_id: 0,
+            created_at: "刚刚",
+            user: {
+              avatar: this.user.avatar,
+              nick_name: this.user.nick_name,
+            },
+          };
+          this.comment.list.unshift(item);
+          this.comment.content = "";
+          this.replyAnswers.unshift(false);
+          this.configkey.unshift(false);
         })
         .catch((e) => {
           this.$message.reeor(e.message);
@@ -449,6 +468,9 @@ export default {
         this.$message.error("回复的用户不存在");
         return;
       }
+      if (!this.reply.content) {
+        return;
+      }
       this.answerId = id;
       this.$api.Topic.ReleaseComments(this.id, {
         parent_id: parentId,
@@ -457,7 +479,6 @@ export default {
       })
         .then((res) => {
           this.configInput = [];
-          this.configInput2 = [];
           this.$message.success("回复成功");
           let item;
           if (id) {
@@ -469,12 +490,23 @@ export default {
               reply_comment: {
                 user: { nick_name: nick_name },
               },
-              created_at: "1秒前",
+              created_at: "刚刚",
               user: {
                 avatar: this.user.avatar,
                 nick_name: this.user.nick_name,
               },
             };
+            let old;
+            if (this.replyAnswers[index]) {
+              old = this.replyAnswers[index];
+              old.unshift(item);
+            } else {
+              old = [];
+            }
+            this.$set(this.replyAnswers, index, old);
+            this.comment.list[index].children_count =
+              this.comment.list[index].children_count + 1;
+            this.reply.content = "";
           } else {
             item = {
               id: res.data.comment_id,
@@ -482,24 +514,31 @@ export default {
               content: this.reply.content,
               children_count: 0,
               reply_comment: null,
-              created_at: "1秒前",
+              created_at: "刚刚",
               user: {
                 avatar: this.user.avatar,
                 nick_name: this.user.nick_name,
               },
             };
+            let old;
+            if (this.replyAnswers[index]) {
+              old = this.replyAnswers[index];
+              old.unshift(item);
+            } else {
+              old = [];
+            }
+            this.$set(this.replyAnswers, index, old);
+            this.comment.list[index].children_count =
+              this.comment.list[index].children_count + 1;
+            this.reply.content = "";
+            this.$set(this.configkey, index, true);
+            this.pagination.comment_id = parentId;
+            this.$api.Topic.AllComments(this.id, this.pagination).then(
+              (res) => {
+                this.$set(this.replyAnswers, index, res.data.data.data);
+              }
+            );
           }
-          let old;
-          if (this.replyAnswers[index]) {
-            old = this.replyAnswers[index];
-            old.unshift(item);
-          } else {
-            old = [];
-          }
-          this.$set(this.replyAnswers, index, old);
-          this.comment.list[index].children_count =
-            this.comment.list[index].children_count + 1;
-          this.reply.content = "";
         })
         .catch((e) => {
           this.$message.error(e.message);
@@ -554,10 +593,44 @@ export default {
 <style lang="less" scoped>
 .content {
   width: 100%;
-  .box {
+  height: auto;
+  float: left;
+  .nav {
     width: 1200px;
     margin: 0 auto;
+    height: auto;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    color: #999999;
+    line-height: 14px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    a {
+      height: 14px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #999999;
+      line-height: 14px;
+      margin-right: 6px;
+      &:not(:first-of-type) {
+        margin-left: 6px;
+      }
+    }
+    span {
+      height: 14px;
+      margin-left: 6px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #666666;
+      line-height: 14px;
+    }
+  }
+  .box {
+    display: flex;
+    width: 1200px;
+    margin: 0 auto;
     flex-direction: row;
     position: relative;
     .share-box {
@@ -565,9 +638,12 @@ export default {
       height: 312px;
       background: #ffffff;
       border-radius: 8px;
-      margin-top: 74px;
       box-sizing: border-box;
       padding: 30px;
+      margin-left: 30px;
+      position: -webkit-sticky; /* Safari */
+      position: sticky;
+      top: 0;
       .share {
         width: 100%;
         height: 40px;
@@ -653,45 +729,14 @@ export default {
         }
       }
     }
+
     .topic-box {
       width: 866px;
-      margin: 0 auto;
+      float: left;
       display: flex;
       box-sizing: border-box;
       flex-direction: column;
-      padding-top: 0px;
-      margin-right: 30px;
-      .nav {
-        width: 100%;
-        height: 14px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        font-size: 14px;
-        color: #999999;
-        line-height: 14px;
-        margin-top: 30px;
-        margin-bottom: 30px;
-        a {
-          height: 14px;
-          font-size: 14px;
-          font-weight: 400;
-          color: #999999;
-          line-height: 14px;
-          margin-right: 6px;
-          &:not(:first-of-type) {
-            margin-left: 6px;
-          }
-        }
-        span {
-          height: 14px;
-          margin-left: 6px;
-          font-size: 14px;
-          font-weight: 400;
-          color: #666666;
-          line-height: 14px;
-        }
-      }
+
       .topic {
         width: 100%;
         height: auto;
@@ -960,7 +1005,7 @@ export default {
             .one-class-replybox {
               width: 728px;
               height: 48px;
-              margin-top: 30px;
+              margin-top: 10px;
               display: flex;
               flex-direction: row;
               align-items: center;
@@ -1009,7 +1054,7 @@ export default {
                 float: left;
                 display: flex;
                 flex-direction: row;
-                margin-top: 20px;
+                margin-top: 30px;
                 .reply-avatar {
                   width: 48px;
                   height: 48px;
@@ -1073,7 +1118,7 @@ export default {
                 .Two-class-replybox {
                   width: 610px;
                   height: 48px;
-                  margin-top: 30px;
+                  margin-top: 20px;
                   display: flex;
                   flex-direction: row;
                   align-items: center;

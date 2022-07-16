@@ -181,7 +181,10 @@
     <template v-if="isOver">
       <div class="analysis-box">
         <div class="pop-box" v-if="question.remark">
-          <div class="remark" style="padding-top: 20px">
+          <div class="status" v-if="!wrongBook">
+            <span class="error">得分：{{ score }}</span>
+          </div>
+          <div class="remark">
             <div>解析：</div>
             <div v-html="question.remark"></div>
           </div>
@@ -291,6 +294,37 @@ export default {
 .spbackground {
   background-color: #fff;
   width: 100%;
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 400;
+    padding: 15px;
+    background-color: #000000;
+    display: flex;
+    align-items: center;
+    .back-detail {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 19px;
+      height: 19px;
+      cursor: pointer;
+    }
+    .pic-item {
+      width: 100%;
+      height: 100%;
+      .pic {
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+      }
+    }
+  }
   .info {
     width: 100%;
     display: flex;
@@ -306,7 +340,7 @@ export default {
       height: 18px;
       font-size: 18px;
       font-weight: 500;
-      color: #666666;
+      color: #333333;
       line-height: 18px;
     }
   }

@@ -69,8 +69,8 @@
                       @click="goMsOrder(msData.order.id)"
                       v-if="
                         book.charge > 0 &&
-                        msData.order &&
-                        msData.order.status === 0
+                          msData.order &&
+                          msData.order.status === 0
                       "
                     >
                       已获得秒杀资格，请尽快支付
@@ -102,8 +102,8 @@
                   <template
                     v-if="
                       tgData &&
-                      tgData.goods &&
-                      (!tgData.join_item || tgData.join_item.length === 0)
+                        tgData.goods &&
+                        (!tgData.join_item || tgData.join_item.length === 0)
                     "
                   >
                     <div class="role-button" @click="goPay(0)">
@@ -293,7 +293,7 @@ export default {
       isLike: false,
       articles: [],
       book: [],
-      currentTab: 2,
+      currentTab: parseInt(this.$route.query.tab || 2),
       total: null,
       chapters: [],
       tabs: [
@@ -480,6 +480,17 @@ export default {
         this.book = res.data.book;
         this.chapters = res.data.chapters;
         this.articles = res.data.articles;
+        if (
+          this.chapters.length > 0 &&
+          this.articles[0] &&
+          this.articles[0].length > 0
+        ) {
+          this.chapters.push({
+            id: 0,
+            name: "无章节内容",
+            sort: 10000,
+          });
+        }
         this.isBuy = res.data.is_buy;
         document.title = res.data.book.name;
         //获取秒杀信息
@@ -639,17 +650,19 @@ export default {
     margin: 0 auto;
     .nav {
       width: 100%;
-      height: 14px;
+      height: auto;
       display: flex;
       flex-direction: row;
+      flex-wrap: nowrap;
       align-items: center;
       font-size: 14px;
       color: #999999;
       line-height: 14px;
       margin-top: 30px;
       margin-bottom: 30px;
+
       a {
-        height: 14px;
+        height: auto;
         font-size: 14px;
         font-weight: 400;
         color: #999999;
@@ -660,12 +673,17 @@ export default {
         }
       }
       span {
-        height: 14px;
+        flex: 1;
+        height: auto;
         margin-left: 6px;
         font-size: 14px;
         font-weight: 400;
         color: #666666;
         line-height: 14px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
     .book-info {
@@ -1234,6 +1252,15 @@ export default {
         flex-direction: row;
         align-items: center;
         margin-bottom: 50px;
+        .text {
+          width: 100%;
+          text-align: center;
+          cursor: pointer;
+          &:hover {
+            color: #3ca7fa;
+            text-decoration: underline;
+          }
+        }
         .reply {
           width: 100%;
           display: flex;

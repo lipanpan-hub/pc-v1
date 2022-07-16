@@ -43,7 +43,6 @@
           ></page-box>
         </div>
       </div>
-
       <div class="right-contanier">
         <template v-if="loading2">
           <div style="margin-top: 20px">
@@ -126,6 +125,7 @@ export default {
       loading: false,
       loading2: false,
       navLoading: false,
+      isfixTab: false,
     };
   },
   mounted() {
@@ -227,7 +227,6 @@ export default {
   .contanier {
     width: 1200px;
     margin: 0 auto;
-    overflow: hidden;
     display: block;
     display: flex;
     flex-direction: row;
@@ -240,6 +239,7 @@ export default {
       flex-direction: column;
       margin-right: 30px;
     }
+
     .right-contanier {
       width: 400px;
       position: relative;
@@ -251,6 +251,9 @@ export default {
         border-radius: 8px;
         padding: 30px;
         box-sizing: border-box;
+        position: -webkit-sticky; /* Safari */
+        position: sticky;
+        top: 0;
         .tit {
           width: 100%;
           height: 18px;

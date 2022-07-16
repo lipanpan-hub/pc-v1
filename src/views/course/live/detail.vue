@@ -387,7 +387,7 @@ export default {
       id: this.$route.query.id,
       isLike: false,
       course: null,
-      currentTab: 2,
+      currentTab: parseInt(this.$route.query.tab || 2),
       total: null,
       chapters: [],
       videos: [],
@@ -724,17 +724,19 @@ export default {
     margin: 0 auto;
     .nav {
       width: 100%;
-      height: 14px;
+      height: auto;
       display: flex;
       flex-direction: row;
+      flex-wrap: nowrap;
       align-items: center;
       font-size: 14px;
       color: #999999;
       line-height: 14px;
       margin-top: 30px;
       margin-bottom: 30px;
+
       a {
-        height: 14px;
+        height: auto;
         font-size: 14px;
         font-weight: 400;
         color: #999999;
@@ -745,12 +747,17 @@ export default {
         }
       }
       span {
-        height: 14px;
+        flex: 1;
+        height: auto;
         margin-left: 6px;
         font-size: 14px;
         font-weight: 400;
         color: #666666;
         line-height: 14px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
     .course-info {

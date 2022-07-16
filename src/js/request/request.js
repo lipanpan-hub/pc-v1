@@ -310,8 +310,14 @@ const Api = {
     Videos(params) {
       return get("/api/v2/member/videos", params);
     },
+    NewCourses(params) {
+      return get("/api/v3/member/courses", params);
+    },
+    BookCourses(params) {
+      return get("/addons/MeeduBooks/api/v2/member/books", params);
+    },
     Collects(params) {
-      return get("/api/v2/member/courses/like", params);
+      return get("/api/v3/member/courses/like", params);
     },
     Miaosha(params) {
       return get("/addons/MiaoSha/api/v1/m/user/orders", params);
@@ -321,6 +327,20 @@ const Api = {
     },
     CertList(params) {
       return get("/addons/Cert/api/v1/member/cert", params);
+    },
+    Learned: {
+      Courses(params) {
+        return get("/api/v3/member/courses/learned", params);
+      },
+      Live(params) {
+        return get("/addons/zhibo/api/v1/member/courses/learned", params);
+      },
+      Topic(params) {
+        return get("/addons/MeeduTopics/api/v2/member/topics/view", params);
+      },
+      Book(params) {
+        return get("/addons/MeeduBooks/api/v2/member/book/view", params);
+      },
     },
   },
   MultiLevelShare: {
@@ -472,6 +492,9 @@ const Api = {
     UserMockPaper(params) {
       return get("/addons/Paper/api/v1/user/mockPapers", params);
     },
+    NewQuestion(id, params) {
+      return get("/addons/Paper/api/v2/question/" + id, params);
+    },
     Practice: {
       CollectStatus(params) {
         return post(`/addons/Paper/api/v1/collection/status`, params);
@@ -484,11 +507,11 @@ const Api = {
       },
     },
     WrongBook: {
-      Detail() {
-        return get(`/addons/Paper/api/v1/wrongbook`);
+      Detail(params) {
+        return get(`/addons/Paper/api/v1/wrongbook`, params);
       },
       OrderMode(params) {
-        return get("/addons/Paper/api/v1/wrongbook/start", params);
+        return get("/addons/Paper/api/v2/wrongbook/questions", params);
       },
       RandomMode(params) {
         return get("/addons/Paper/api/v1/wrongbook/random", params);
@@ -498,6 +521,9 @@ const Api = {
       },
     },
     Collection: {
+      Stats(params) {
+        return get(`/addons/Paper/api/v1/collection/stats`, params);
+      },
       Detail(params) {
         return get(`/addons/Paper/api/v1/collection/questions`, params);
       },
@@ -505,7 +531,7 @@ const Api = {
         return post("/addons/Paper/api/v1/questions/practice", params);
       },
       OrderMode(params) {
-        return post("/addons/Paper/api/v1/collection/play", params);
+        return get("/addons/Paper/api/v2/collection/questions", params);
       },
     },
     QuestionBank: {

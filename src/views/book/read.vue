@@ -7,7 +7,7 @@
           @click="
             $router.push({
               name: 'bookDetail',
-              query: { id: book.id },
+              query: { id: book.id, tab: 3 },
             })
           "
         >
@@ -180,7 +180,7 @@
                     :class="{ trans: configInput[index] === true }"
                     class="reply-answer"
                     v-if="canSee"
-                    @click="showReply(index)"
+                    @click="showReply(commentItem.id)"
                   >
                     回复
                   </div>
@@ -194,7 +194,7 @@
                   </div>
                 </div>
                 <div
-                  v-if="configInput[index] === true"
+                  v-if="configInput[commentItem.id] === true"
                   class="one-class-replybox"
                 >
                   <input
@@ -222,8 +222,8 @@
                   <template v-if="replyAnswers.length > 0">
                     <div
                       class="reply-list-item"
-                      v-for="(replyItem, index2) in replyAnswers[index]"
-                      :key="index2"
+                      v-for="replyItem in replyAnswers[index]"
+                      :key="replyItem.id"
                     >
                       <div class="reply-avatar">
                         <img
@@ -252,12 +252,12 @@
                         <div
                           v-if="canSee"
                           class="answer-item"
-                          @click="showReply2(index2)"
+                          @click="showReply(replyItem.id)"
                         >
                           回复
                         </div>
                         <div
-                          v-if="configInput2[index2] === true"
+                          v-if="configInput[replyItem.id] === true"
                           class="Two-class-replybox"
                         >
                           <input
@@ -353,7 +353,6 @@ export default {
       },
       configkey: [],
       configInput: [],
-      configInput2: [],
       replyAnswers: [],
       answerId: null,
     };
@@ -412,6 +411,17 @@ export default {
         this.book = res.data.book;
         this.chapters = res.data.chapters;
         this.articles = res.data.articles;
+        if (
+          this.chapters.length > 0 &&
+          this.articles[0] &&
+          this.articles[0].length > 0
+        ) {
+          this.chapters.push({
+            id: 0,
+            name: "无章节内容",
+            sort: 10000,
+          });
+        }
         this.isBuy = res.data.is_buy;
         this.canSee = res.data.can_see;
         this.prevId = parseInt(res.data.prev_id);
@@ -490,7 +500,6 @@ export default {
       this.replyAnswers = [];
       this.configkey = [];
       this.configInput = [];
-      this.configInput2 = [];
       this.resetComments();
       this.getComments();
       document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -513,11 +522,9 @@ export default {
         name: "vip",
       });
     },
-    showReply(index) {
-      this.$set(this.configInput, index, !this.configInput[index]);
-    },
-    showReply2(index2) {
-      this.$set(this.configInput2, index2, !this.configInput2[index2]);
+    showReply(id) {
+      this.configInput = [];
+      this.$set(this.configInput, id, true);
     },
     getAnswer(index, id) {
       this.$set(this.configkey, index, !this.configkey[index]);
@@ -567,10 +574,26 @@ export default {
       this.$api.Book.SubmitComment(this.id, {
         content: this.comment.content,
       })
-        .then(() => {
+        .then((res) => {
           this.$message.success("评论成功");
-          this.resetComments();
-          this.getComments();
+          let item = {
+            id: res.data.comment_id,
+            is_check: 0,
+            parent_id: 0,
+            content: this.comment.content,
+            children_count: 0,
+            reply_id: 0,
+            reply: null,
+            created_at: "刚刚",
+            user: {
+              avatar: this.user.avatar,
+              nick_name: this.user.nick_name,
+            },
+          };
+          this.comment.list.unshift(item);
+          this.comment.content = "";
+          this.replyAnswers.unshift(false);
+          this.configkey.unshift(false);
         })
         .catch((e) => {
           this.$message.error(e.message);
@@ -579,6 +602,9 @@ export default {
     ReplyAnswer(parentId, id, nick_name, index) {
       if (!nick_name) {
         this.$message.error("回复的用户不存在");
+        return;
+      }
+      if (!this.reply.content) {
         return;
       }
       this.answerId = id;
@@ -598,40 +624,60 @@ export default {
               parent_id: parentId,
               content: this.reply.content,
               children_count: 0,
+              reply_id: res.data.reply_id,
               reply: {
                 user: { nick_name: nick_name },
               },
-              created_at: "1秒前",
+              created_at: "刚刚",
               user: {
                 avatar: this.user.avatar,
                 nick_name: this.user.nick_name,
               },
             };
+            let old;
+            if (this.replyAnswers[index]) {
+              old = this.replyAnswers[index];
+              old.unshift(item);
+            } else {
+              old = [];
+            }
+            this.$set(this.replyAnswers, index, old);
+            this.comment.list[index].children_count =
+              this.comment.list[index].children_count + 1;
+            this.reply.content = "";
           } else {
             item = {
               id: res.data.comment_id,
               parent_id: parentId,
               content: this.reply.content,
               children_count: 0,
-              reply_comment: null,
-              created_at: "1秒前",
+              reply_id: res.data.reply_id,
+              reply: null,
+              created_at: "刚刚",
               user: {
                 avatar: this.user.avatar,
                 nick_name: this.user.nick_name,
               },
             };
+            let old;
+            if (this.replyAnswers[index]) {
+              old = this.replyAnswers[index];
+              old.unshift(item);
+            } else {
+              old = [];
+            }
+            this.$set(this.replyAnswers, index, old);
+            this.comment.list[index].children_count =
+              this.comment.list[index].children_count + 1;
+            this.reply.content = "";
+            this.$set(this.configkey, index, true);
+            this.pagination.parent_id = parentId;
+            this.$api.Book.AnswerComments(this.id, this.pagination).then(
+              (res) => {
+                this.$set(this.replyAnswers, index, res.data.data.data);
+              }
+            );
           }
-          let old;
-          if (this.replyAnswers[index]) {
-            old = this.replyAnswers[index];
-            old.unshift(item);
-          } else {
-            old = [];
-          }
-          this.$set(this.replyAnswers, index, old);
-          this.comment.list[index].children_count =
-            this.comment.list[index].children_count + 1;
-          this.reply.content = "";
         })
         .catch((e) => {
           this.$message.error(e.message);
@@ -987,7 +1033,7 @@ export default {
             .one-class-replybox {
               width: 728px;
               height: 48px;
-              margin-top: 30px;
+              margin-top: 10px;
               display: flex;
               flex-direction: row;
               align-items: center;
@@ -1037,9 +1083,7 @@ export default {
                 display: flex;
                 flex-direction: row;
                 margin-top: 30px;
-                &:last-child {
-                  margin-top: 20px;
-                }
+
                 .reply-avatar {
                   width: 48px;
                   height: 48px;
@@ -1103,7 +1147,7 @@ export default {
                 .Two-class-replybox {
                   width: 610px;
                   height: 48px;
-                  margin-top: 30px;
+                  margin-top: 20px;
                   display: flex;
                   flex-direction: row;
                   align-items: center;
